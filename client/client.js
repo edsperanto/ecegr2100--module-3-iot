@@ -1,4 +1,11 @@
 const io = require('socket.io-client');
+
+const socket = io("https://edwardgao.com");
+
+socket.on('connect', _ => {
+    console.log(socket.id);
+});
+
 const Gpio = require('onoff').Gpio;
 
 const LED = new Gpio(23, 'out');
