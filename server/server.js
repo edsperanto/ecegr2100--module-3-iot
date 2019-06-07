@@ -1,16 +1,9 @@
 var app = require('express')();
 var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
 var users = {};
 var piUser = "";
-
-var io = require('socket.io')(http);
-var doorlock = new Gpio(17, 'out');
-var redLED = new Gpio(27, 'out');
-var blueLED = new Gpio(23, 'out');
- 
-var iv = setInterval(_ => doorlock.writeSync(doorlock.readSync() ^ 1), 1000);
-var redCops = setInterval(_ => redLED.writeSync(redLED.readSync() ^ 1), 100);
-var blueCops = setInterval(_ => blueLED.writeSync(blueLED.readSync() ^ 1), 100);
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
@@ -77,9 +70,15 @@ io.on('connection', function(socket){
 
     socket.on("control", function(type) {
         if(type == "open door") {
+            io.to(piUser).emit("control", "open door");
         } else if(type == "red pill") {
+            io.to(piUser).emit("control", "red pill");
         } else if(type == "blue pill") {
+            io.to(piUser).emit("control", "blue pill");
+        } else if(type == "shut down") {
+            io.to(piUser).emit("control", "shut down");
         } else if(type == "wee woo") {
+            io.to(piUser).emit("control", "wee woo");
         }
     });
 
