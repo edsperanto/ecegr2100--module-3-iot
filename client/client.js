@@ -20,7 +20,7 @@ socket.on("reqAuth", data => {
                 let floppySerial = stdout.split('\n')[0];
                 let userSerial = msg.split(' ')[0];
                 console.log("floppy:", floppySerial);
-                if(floppySerial == userSerial) {
+                if(floppySerial == userSerial && userSerial != "") {
                     socket.emit("piAuth", `${email};success`);
                 } else {
                     socket.emit("piAuth", `${email};fail`);
