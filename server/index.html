@@ -1,35 +1,282 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        $(function() {
+    <head>
+        <title>SmartLight</title>
+         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet"> 
+        <style>
+            *:not(ul, li) { 
+                top: 0; left: 0; bottom: 0; right: 0;
+                margin: 0; padding: 0;
+                cursor: default; user-select: none;
+                box-sizing: border-box; 
+            }
+            html {
+                height: 100%;
+                font-size: 25px;
+                font-family: 'Source Sans Pro', Verdana, sans-serif;
+            }
+            body { 
+                background-color: #2a2f35; 
+                color: #d4fd02; 
+                font-family: Calibri;
+                height: 100%;
+                overflow-y: hidden;
+                box-sizing: border-box;
+            }
+            .panels {
+                box-sizing: border-box;
+                padding: 40px;
+                border: 1px solid #d4fd02;
+                margin: 40px;
+                height: calc(100% - 80px);
+                display: flex;
+                flex-flow: column wrap;
+            }
+            p {
+                margin: 0;
+            }
+            .title {
+                font-size: 50px;
+                margin-bottom: 10px;
+            }
+            .text {
+                font-size: 30px;
+                color: white;
+                margin-bottom: 5px;
+            }
+            label {
+                color: white;
+                width: 100px;
+                text-align: right;
+                display: inline-block;
+                margin-right: 10px;
+            }
+            input {
+                background-color: #7a7f85;
+                color: white;
+                font-size: 20px;
+                border: none;
+                padding: 10px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+            button {
+                background-color: #d4fd02;
+                color: #2a2f35;
+                font-size: 20px;
+                padding: 10px;
+                border: none;
+                cursor: pointer;
+            }
+            .modebtn {
+                width: 150px;
+                height: 50px;
+                display: flex;
+                justify-content: space-evenly;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                border-radius: 10px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                border: 1px solid white;
+            }
+            .circle {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+                margin: 10px;
+                border-radius: 100%;
+                border: 1px solid white;
+            }
+            #serial {
+                width: 400px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="panels" id="welcome">
+            <p class="title">Meet your new SmartLight&trade;</p>
+            <marquee class="text">The revolutionary IoT device powered by AI, hosted on the Blockchain&trade;. Very durable. Super secure. Totally private.</marquee>
+            <div style="flex: 1;"></div>
+            <form action="">
+                <button id="loginBtn" style="margin-right: 30px;">Log In</button>
+                <button id="regBtn">Register</button>
+            </form>
+        </div>
+        <div class="panels" id="auth">
+            <p class="title">Software Registration</p>
+            <p class="text">Please enter your product key</p>
+            <form action="">
+                <input id="serial" type="text" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"/>
+            </form>
+            <div style="flex: 1;"></div>
+            <form action="">
+                <button id="okAuthBtn" style="margin-right: 30px;">Confirm</button>
+                <button id="backFromAuthBtn">Go Back</button>
+            </form>
+        </div>
+        <div class="panels" id="register">
+            <p class="title">Register</p>
+            <form action="">
+                <label for="name">Full name</label>
+                <input id="name" type="text" placeholder="Obedient Consumer" />
+                <br />
+                <label for="email">Email</label>
+                <input id="email" type="text" placeholder="sheep@gmail.com" />
+                <br />
+                <label for="passwd">Password</label>
+                <input id="passwd" type="password" placeholder="hunter2"/>
+                <br />
+                <label for="SSN">SSN</label>
+                <input id="ssn" type="text" placeholder="###-##-####" />
+            </form>
+            <div style="flex: 1;"></div>
+            <form action="">
+                <button id="okRegBtn" style="margin-right: 30px;">Submit</button>
+                <button id="backFromRegBtn">Go Back</button>
+            </form>
+        </div>
+        <div class="panels" id="login">
+            <p class="title">Log In</p>
+            <form action="">
+                <label for="email">Email</label>
+                <input id="email" type="text" placeholder="sheep@gmail.com" />
+                <br />
+                <label for="passwd">Password</label>
+                <input id="passwd" type="password" placeholder="hunter2"/>
+            </form>
+            <div style="flex: 1;"></div>
+            <form action="">
+                <button id="okLoginBtn" style="margin-right: 30px;">Submit</button>
+                <button id="backFromLoginBtn">Go Back</button>
+            </form>
+        </div>
+        <div class="panels" id="control">
+            <p class="title">Control Panel</p>
+            <p class="text">Flash Mode</p>
+            <div class="modebtn">
+                <div id="11" class="circle"></div>
+                <div id="12" class="circle"></div>
+                <div id="13" class="circle"></div>
+            </div>
+            <div class="modebtn">
+                <div id="21" class="circle"></div>
+                <div id="22" class="circle"></div>
+                <div id="23" class="circle"></div>
+            </div>
+            <div class="modebtn">
+                <div id="31" class="circle"></div>
+                <div id="32" class="circle"></div>
+                <div id="33" class="circle"></div>
+            </div>
+            <div class="modebtn">
+                <div id="41" class="circle"></div>
+                <div id="42" class="circle"></div>
+                <div id="43" class="circle"></div>
+            </div>
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
             var socket = io();
-            $('form').submit(function(e) {
-                e.preventDefault();
-                socket.emit('chat message', $('#m').val());
-                $('#m').val('');
-                return false;
-            });
-        });
-    </script>
-  </body>
+            socket.emit("identity", "user client");
+            (function pageView() {
+                var pages = {
+                    "welcome": document.getElementById("welcome"),
+                    "auth": document.getElementById("auth"),
+                    "register": document.getElementById("register"),
+                    "login": document.getElementById("login"),
+                    "control": document.getElementById("control"),
+                }
+                function showPage(dstPage) {
+                    Object.keys(pages).forEach(page => {
+                        if(page == dstPage) {
+                            pages[page].style.display = "";
+                        } else {
+                            pages[page].style.display = "none";
+                        }
+                    })
+                }
+                showPage("welcome");
+                var loginBtn = document.getElementById("loginBtn");
+                loginBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("login");
+                });
+                var backFromLoginBtn = document.getElementById("backFromLoginBtn");
+                backFromLoginBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("welcome");
+                });
+                var regBtn = document.getElementById("regBtn");
+                regBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("register");
+                });
+                var backFromRegBtn = document.getElementById("backFromRegBtn");
+                backFromRegBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("welcome");
+                });
+                var okRegBtn = document.getElementById("okRegBtn");
+                okRegBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    myString = "";
+                    myString += document.getElementById("name").value;
+                    myString += ";";
+                    myString += document.getElementById("email").value;
+                    myString += ";";
+                    myString += document.getElementById("passwd").value;
+                    myString += ";";
+                    myString += document.getElementById("ssn").value;
+                    socket.emit("register", myString);
+                    showPage("auth");
+                });
+                var okAuthBtn = document.getElementById("okAuthBtn");
+                okAuthBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    myString = "";
+                    myString += document.getElementById("email").value;
+                    myString += ";";
+                    myString += document.getElementById("serial").value;
+                    socket.emit("cliAuth", myString);
+                });
+                var backFromAuthBtn = document.getElementById("backFromAuthBtn");
+                backFromAuthBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("register");
+                });
+            })();
+            (function lightAnimations() {
+                var t = 0;
+                var flashmodes = [
+                    ["100", "010", "001", "111"],
+                    ["111", "000", "000", "111"],
+                    ["110", "011", "101", "111"],
+                    ["101", "000", "000", "101"]
+                ]
+                var light = [];
+                for(let i = 0; i < 4; i++) {
+                    var mode = [];
+                    for(let j = 0; j < 3; j++) {
+                        let id = ((i+1)*10+(j+1)).toString();
+                        mode[j] = document.getElementById(id);
+                    }
+                    light.push(mode);
+                }
+                setInterval(function() {
+                    for(let i = 0; i < 4; i++) {
+                        for(let j = 0; j < 3; j++) {
+                            let led = light[i][j];
+                            let on = flashmodes[i][t][j] == "1";
+                            led.style.backgroundColor = on?"white":"#2a2f35";
+                        }
+                    }
+                    t = (t == 3) ? 0 : (t+1);
+                }, 500);
+            })();
+        </script>
+    </body>
 </html>
