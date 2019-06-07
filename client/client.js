@@ -3,27 +3,24 @@ const io = require('socket.io-client');
 const socket = io("https://edwardgao.com");
 
 socket.on('connect', _ => {
-    console.log(socket.id);
+    console.log("Socket ID:", socket.id);
 });
 
 const Gpio = require('onoff').Gpio;
 
-const LED = new Gpio(23, 'out');
+const useLed = (led, value) => led.writeSync(value);
 
-var blinkInterval = setInterval(blinkLED, 250);
+let led;
 
-function blinkLED() {
-    if (LED.readSync() === 0) {
-        LED.writeSync(1);
-    } else {
-        LED.writeSync(0);
+if(Gpio.accessible) {
+    led = new Gpio(17, "out");
+    console.log("accessible");
+} else {
+    led = {
+        writeSync: value => {
+            console.log("virtual led now uses value: " + value);
+        }
     }
 }
 
-function endBlink() {
-    clearInterval(blinkInterval);
-    LED.writeSync(0);
-    LED.unexport();
-}
-
-setTimeout(endBlink, 5000);
+useLed(led, 1);

@@ -1,5 +1,4 @@
-floppyuuid="c8df9ed1-6d8e-4a03-bdd2-cc8f8686fb6c"
-grepresult="$( ls -l /dev/disk/by-uuid | grep "$floppyuuid" )"
+grepresult="$( ls -l /dev/disk/by-path | grep "usb" )"
 if [ -n "$grepresult" ]; then
     diskname="$( echo "$grepresult" | cut -d"/" -f3 )"
     sudo mkdir -p /media/floppy
@@ -10,4 +9,6 @@ if [ -n "$grepresult" ]; then
     sudo umount /dev/$diskname
     sudo rmdir /media/floppy
     echo $license
+else
+    echo "No floppy disks detected"
 fi
