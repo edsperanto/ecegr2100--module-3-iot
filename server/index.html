@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- ur not s'posed to b here bro -->
 <html>
     <head>
         <title>SmartLight</title>
@@ -46,7 +47,7 @@
             }
             label {
                 color: white;
-                width: 100px;
+                width: 150px;
                 text-align: right;
                 display: inline-block;
                 margin-right: 10px;
@@ -95,6 +96,7 @@
             }
         </style>
     </head>
+    <!-- This is a violation of my privacy -->
     <body>
         <div class="panels" id="welcome">
             <p class="title">Meet your new SmartLight&trade;</p>
@@ -142,10 +144,10 @@
             <p class="title">Log In</p>
             <form action="">
                 <label for="email">Email</label>
-                <input id="email" type="text" placeholder="sheep@gmail.com" />
+                <input id="loginEmail" type="text" placeholder="sheep@gmail.com" />
                 <br />
                 <label for="passwd">Password</label>
-                <input id="passwd" type="password" placeholder="hunter2"/>
+                <input id="loginPasswd" type="password" placeholder="hunter2"/>
             </form>
             <div style="flex: 1;"></div>
             <form action="">
@@ -155,6 +157,15 @@
         </div>
         <div class="panels" id="control">
             <p class="title">Control Panel</p>
+            <form action="">
+                <button style="margin-right: 30px; margin-bottom: 20px;" id="openDoor">Open Door</button>
+                <br />
+                <button style="margin-right: 30px; margin-bottom: 20px;" id="redPill">Red Pill</button>
+                <button style="margin-right: 30px; margin-bottom: 20px;" id="bluePill">Blue Pill</button>
+                <button style="margin-right: 30px; margin-bottom: 20px;" id="shutDown">Shut Down</button>
+                <br />
+                <button style="margin-bottom: 20px;" id="weeWoo">Wee Woo Wee Woo</button>
+            </form>
             <p class="text">Flash Mode</p>
             <div class="modebtn">
                 <div id="11" class="circle"></div>
@@ -176,6 +187,10 @@
                 <div id="42" class="circle"></div>
                 <div id="43" class="circle"></div>
             </div>
+            <div style="flex: 1;"></div>
+            <form action="">
+                <button id="backFromControlBtn">Log Out</button>
+            </form>
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -210,6 +225,15 @@
                     e.preventDefault();
                     showPage("welcome");
                 });
+                var okLoginBtn = document.getElementById("okLoginBtn");
+                okLoginBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    myString = "";
+                    myString += document.getElementById("loginEmail").value;
+                    myString += ";";
+                    myString += document.getElementById("loginPasswd").value;
+                    socket.emit("login", myString);
+                });
                 var regBtn = document.getElementById("regBtn");
                 regBtn.addEventListener("click", e => {
                     e.preventDefault();
@@ -242,11 +266,58 @@
                     myString += ";";
                     myString += document.getElementById("serial").value;
                     socket.emit("cliAuth", myString);
+                    showPage("welcome");
                 });
                 var backFromAuthBtn = document.getElementById("backFromAuthBtn");
                 backFromAuthBtn.addEventListener("click", e => {
                     e.preventDefault();
                     showPage("register");
+                });
+                var backFromControlBtn = document.getElementById("backFromControlBtn");
+                backFromControlBtn.addEventListener("click", e => {
+                    e.preventDefault();
+                    showPage("welcome");
+                });
+                socket.on("access", msg => {
+                    if(msg == "pirate") {
+                        alert("You didn't buy our software, but I respect a pirate when I see one. Access granted.");
+                        showPage("control");
+                    } else if(msg == "granted") {
+                        alert("Congrats for feeding the capitalist machine, you obedient normie. Access granted.");
+                        showPage("control");
+                    } else if(msg == "denied") {
+                        alert("You don't even know your own password? Access denied.");
+                    } else if(msg == "hacker") {
+                        alert("You've hacked into the mainframe! Access granted.")
+                        showPage("control");
+                    } else {
+                        alert("Looks like this user doesn't exist. Access denied.");
+                    }
+                });
+                var openDoor = document.getElementById("openDoor");
+                var redPill = document.getElementById("redPill");
+                var bluePill = document.getElementById("bluePill");
+                var shutDown = document.getElementById("shutDown");
+                var weeWoo = document.getElementById("weeWoo");
+                openDoor.addEventListener("click", e => {
+                    e.preventDefault();
+                    socket.emit("control", "open door");
+                });
+                redPill.addEventListener("click", e => {
+                    e.preventDefault();
+                    socket.emit("control", "red pill");
+                });
+                bluePill.addEventListener("click", e => {
+                    e.preventDefault();
+                    socket.emit("control", "blue pill");
+                });
+                shutDown.addEventListener("click", e => {
+                    e.preventDefault();
+                    socket.emit("control", "shut down");
+                });
+                weeWoo.addEventListener("click", e => {
+                    e.preventDefault();
+                    socket.emit("control", "wee woo");
                 });
             })();
             (function lightAnimations() {
@@ -279,4 +350,5 @@
             })();
         </script>
     </body>
+    <!-- You have been reported to the FBI -->
 </html>
